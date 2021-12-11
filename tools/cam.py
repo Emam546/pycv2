@@ -93,6 +93,8 @@ class Fast_set_cam(cv2.VideoCapture):
         control=keyboards()
 
         print("setting camera")
+        print("click ENTER to confirm")
+        fps=int(get_cam_properties(cap)["fps"])
         while not control.pressedkey(ENTER):
             ret, frame = cap.read()
            

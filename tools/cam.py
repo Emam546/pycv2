@@ -5,7 +5,6 @@ import os
 import sys
 from pykeyboard import keyboards
 from pykeyboard.keys import ENTER
-from pycv2.img.utilis import resize_with_keep
 sys.path.append(os.path.dirname(__file__))
 from utils import *
 from win32api import GetSystemMetrics
@@ -94,9 +93,9 @@ class Fast_set_cam(cv2.VideoCapture):
 
         print("setting camera")
         print("click ENTER to confirm")
-        fps=int(get_cam_properties(cap)["fps"])
+        fps=int(get_cam_properties(self)["fps"])
         while not control.pressedkey(ENTER):
-            ret, frame = cap.read()
+            ret, frame = self.read()
            
             if not ret:
                 print("fialed")
@@ -108,11 +107,12 @@ class Fast_set_cam(cv2.VideoCapture):
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             
-             if frame.shape[1]>=WIDTH:
+            if frame.shape[1]>=WIDTH:
                 w,h=frame.shape[:2]
                 r = WIDTH / float(w)
                 dim = (WIDTH, int(h * r))
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             cv2.imshow("WIDNDOW",frame)
-            cv2.waitKey(1/fps)
+            cv2.waitKey(int(6/fps)*100)
+        control.stop_checking_all()

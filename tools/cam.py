@@ -3,12 +3,21 @@ import time
 import datetime
 import os 
 import sys
+from pykeyboard import keyboards
+from pykeyboard.keys import ENTER
+from pycv2.img.utilis import resize_with_keep
 sys.path.append(os.path.dirname(__file__))
 from utils import *
+from win32api import GetSystemMetrics
+WIDTH= GetSystemMetrics(0)
+HEIGHT= GetSystemMetrics(1)
 #cap.set(cv2.CAP_PROP_POS_FRAMES,int(frame_count/2))
 #milliseconds = 1000*60
 #cap.set(cv2.CAP_PROP_POS_MSEC, milliseconds)
-def get_cam_properties(cap):
+def get_cam_properties(cap)->dict:
+    """
+    return dictionary of fps and frame count
+    """
     fps = cap.get(cv2.CAP_PROP_FPS)      # OpenCV2 version 2 used "CV_CAP_PROP_FPS"
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     return {"fps":fps,"frame_count":frame_count}
@@ -77,4 +86,31 @@ class VIDEO_SAVER(cv2.VideoWriter):
     def save(self):
         return super().release()
      
-        
+class Fast_set_cam(cv2.VideoCapture):
+    def __init__(self,url):
+        super().__init__(url)
+    def start(self):
+        control=keyboards()
+
+        print("setting camera")
+        while not control.pressedkey(ENTER):
+            ret, frame = cap.read()
+           
+            if not ret:
+                print("fialed")
+                break  
+            if frame.shape[0]>=HEIGHT:
+                w,h=frame.shape[:2]
+                r = HEIGHT / float(h)
+                dim = (int(w * r), HEIGHT)
+                inter = cv2.INTER_AREA
+                frame = cv2.resize(frame, dim, interpolation = inter)
+            
+             if frame.shape[1]>=WIDTH:
+                w,h=frame.shape[:2]
+                r = WIDTH / float(w)
+                dim = (WIDTH, int(h * r))
+                inter = cv2.INTER_AREA
+                frame = cv2.resize(frame, dim, interpolation = inter)
+            cv2.imshow("WIDNDOW",frame)
+            cv2.waitKey(1/fps)

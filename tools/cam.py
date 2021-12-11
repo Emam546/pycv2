@@ -94,6 +94,7 @@ class Fast_set_cam(cv2.VideoCapture):
         print("setting camera")
         print("click ENTER to confirm")
         fps=int(get_cam_properties(self)["fps"])
+        token=int((6/fps)*100)
         while not control.pressedkey(ENTER):
             ret, frame = self.read()
            
@@ -114,5 +115,5 @@ class Fast_set_cam(cv2.VideoCapture):
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             cv2.imshow("WIDNDOW",frame)
-            cv2.waitKey(int(6/fps)*100)
+            cv2.waitKey(token)
         control.stop_checking_all()

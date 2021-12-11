@@ -101,14 +101,14 @@ class Fast_set_cam(cv2.VideoCapture):
             if not ret:
                 print("fialed")
                 break  
-            if frame.shape[0]>=HEIGHT:
+            if frame.shape[0]>=HEIGHT-100:
                 w,h=frame.shape[:2]
                 r = HEIGHT / float(h)
                 dim = (int(w * r), HEIGHT)
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             
-            if frame.shape[1]>=WIDTH:
+            if frame.shape[1]>=WIDTH-20:
                 w,h=frame.shape[:2]
                 r = WIDTH / float(w)
                 dim = (WIDTH, int(h * r))

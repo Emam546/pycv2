@@ -89,31 +89,35 @@ class Fast_set_cam(cv2.VideoCapture):
     def __init__(self,url):
         super().__init__(url)
     def start(self):
-        control=keyboards()
+        self.control=keyboards()
 
         print("setting camera")
         print("click ENTER to confirm")
         fps=int(get_cam_properties(self)["fps"])
         token=int((6/fps)*100)
-        while not control.pressedkey(ENTER):
+        while not self.control.pressedkey(ENTER):
             ret, frame = self.read()
            
             if not ret:
                 print("fialed")
                 break  
-            if frame.shape[0]>=HEIGHT-100:
-                w,h=frame.shape[:2]
+            if frame.shape[0]>=HEIGHT-400:
+                h,w=frame.shape[:2]
                 r = HEIGHT / float(h)
                 dim = (int(w * r), HEIGHT)
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             
             if frame.shape[1]>=WIDTH-20:
-                w,h=frame.shape[:2]
+                h,w=frame.shape[:2]
                 r = WIDTH / float(w)
                 dim = (WIDTH, int(h * r))
                 inter = cv2.INTER_AREA
                 frame = cv2.resize(frame, dim, interpolation = inter)
             cv2.imshow("WIDNDOW",frame)
             cv2.waitKey(token)
-        control.stop_checking_all()
+        cv2.destroyAllWindows()
+        self.control.stop_checking_all()
+if __name__=="__main__":
+    print(WIDTH,HEIGHT)
+    Fast_set_cam("http://192.168.0.104:8080/video").start()

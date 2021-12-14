@@ -19,29 +19,30 @@ class Hand_detector(mp_hand.Hands):
         self.result=self.process(imgRgb)
         img.flags.writeable = True
         return self.result
-        
 
     def draw_land_marks(self,img,results=None):
         if results is None:
             results=self.result
         if results.multi_hand_landmarks:
             for handLms in results.multi_hand_landmarks:
-                mpDraw.draw_landmarks(img,handLms,HAND_CONNECTIONS,self.drawSpec,self.drawSpec)
+                mpDraw.draw_landmarks(img,handLms,HAND_CONNECTIONS,mpDraw.DrawingSpec(),mpDraw.DrawingSpec())
         return img
     def hands_type(self,results=None):
         if results is None:
             results=self.result
         hand_type={}
-        hand_classification=results.multi_handedness
-        for num,hand in enumerate(hand_classification):
-            hand=MessageToDict(hand)["classification"][0]
-            label=hand["label"] 
-            if label not in hand_type:
-                hand_type[label]=num
-            else:
-                other_hand=hand_classification[hand_type[label]]["score"]
-                if other_hand["score"]>hand["score"]:
+        def convert(hand):
+            return MessageToDict(hand)["classification"][0]
+        if results.multi_handedness:
+            hand_classification=list(map(convert,results.multi_handedness))
+            for num,hand in enumerate(hand_classification):
+                label=hand["label"] 
+                if label not in hand_type:
                     hand_type[label]=num
+                else:
+                    other_hand=hand_classification[hand_type[label]]["score"]
+                    if other_hand>hand["score"]:
+                        hand_type[label]=num
         return hand_type
     def findpositions(self,img,handnum=0,draw=True):
         lmlist=[]
@@ -95,8 +96,8 @@ def main():
         ret,frame=cap.read()
         if not ret or control.pressedkey(ESC):
             break
-        
-        frame=hand_detector.find_hands(frame,True)
+        hand_detector.find_hands(frame)
+        frame=hand_detector.draw_land_marks(frame)
         fps.end(frame)
         if frame is None:
             break

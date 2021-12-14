@@ -3,8 +3,11 @@ import time
 import datetime
 import os 
 import sys
+from pathlib import Path
 sys.path.append(os.path.dirname(__file__))
+sys.path.append(os.path.dirname(Path(__file__).parent))
 from utils import *
+from img.utils import resizeimage_keeprespective
 
 #cap.set(cv2.CAP_PROP_POS_FRAMES,int(frame_count/2))
 #milliseconds = 1000*60
@@ -74,6 +77,42 @@ class FPS():
             cv2.putText(frame,str(fps),(20,50),cv2.FONT_HERSHEY_COMPLEX,2,(0,255,0))
         return fps
    
+class VIDEO_SAVER(cv2.VideoCapture):
+    def __init__(self,url):
+        super().__init__(url)
+    def start(self):
+        from win32api import GetSystemMetrics
+        WIDTH= GetSystemMetrics(0)
+        HEIGHT= GetSystemMetrics(1)
+        from pykeyboard import keyboards
+        from pykeyboard.keys import ENTER,ESC
+        control=keyboards()
+
+        print("setting camera")
+        print("click ENTER to confirm")
+        fps=int(get_cam_properties(self)["fps"])
+        token=int((6/fps)*100)
+        frames=[]
+    
+        while not control.pressedkey(ESC):
+            ret, frame = self.read()
+            if not ret:
+                print("fialed")
+                break  
+            if frame.shape[0]>=HEIGHT-400:
+                frame=resizeimage_keeprespective(frame,height=HEIGHT)
+            if frame.shape[1]>=WIDTH-20:
+                frame=resizeimage_keeprespective(frame,width=WIDTH)
+            if control.pressedkey(ENTER):
+                frames.append(frame)
+                print(len(frames))
+            cv2.imshow("WIDNDOW",frame)
+            cv2.waitKey(token)
+        conver_frames2video("saved_video.mp4",frames,fps_v=30)
+
+        cv2.destroyAllWindows()
+        control.stop_checking_all()
+
 class Fast_set_cam(cv2.VideoCapture):
 
     def __init__(self,url):
@@ -84,35 +123,26 @@ class Fast_set_cam(cv2.VideoCapture):
         HEIGHT= GetSystemMetrics(1)
         from pykeyboard import keyboards
         from pykeyboard.keys import ENTER
-        self.control=keyboards()
+        control=keyboards()
 
         print("setting camera")
         print("click ENTER to confirm")
         fps=int(get_cam_properties(self)["fps"])
         token=int((6/fps)*100)
-        while not self.control.pressedkey(ENTER):
+        while not control.pressedkey(ENTER):
             ret, frame = self.read()
            
             if not ret:
                 print("fialed")
                 break  
             if frame.shape[0]>=HEIGHT-400:
-                h,w=frame.shape[:2]
-                r = HEIGHT / float(h)
-                dim = (int(w * r), HEIGHT)
-                inter = cv2.INTER_AREA
-                frame = cv2.resize(frame, dim, interpolation = inter)
-            
+                frame=resizeimage_keeprespective(frame,height=HEIGHT)
             if frame.shape[1]>=WIDTH-20:
-                h,w=frame.shape[:2]
-                r = WIDTH / float(w)
-                dim = (WIDTH, int(h * r))
-                inter = cv2.INTER_AREA
-                frame = cv2.resize(frame, dim, interpolation = inter)
+                frame=resizeimage_keeprespective(frame,width=WIDTH)
             cv2.imshow("WIDNDOW",frame)
             cv2.waitKey(token)
         cv2.destroyAllWindows()
-        self.control.stop_checking_all()
+        control.stop_checking_all()
 if __name__=="__main__":
     #print(WIDTH,HEIGHT)
-    Fast_set_cam("http://192.168.0.104:8080/video").start()
+    VIDEO_SAVER("http://192.168.0.104:8080/video").start()

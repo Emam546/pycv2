@@ -5,7 +5,8 @@ mpfacedetction=mp.solutions.face_detection
 class facedetection():
     def __init__(self,minconfidence=0.5):
         self.faceDetection=mpfacedetction.FaceDetection(minconfidence)
-    def findfaces(self,img)-> list:
+    
+    def findfaces(self,img):
         h,w=img.shape[:2]
         imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         results=self.faceDetection.process(imgRGB)
@@ -17,8 +18,6 @@ class facedetection():
                     int(pos.width*w),int(pos.height*h)
                 bboxs.append([bbox,detection.score[0]])
         return bboxs
-    
-    
 
 def main():
     cap=cv2.VideoCapture("video.mp4")

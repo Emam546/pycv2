@@ -3,17 +3,13 @@ import time
 import datetime
 import os 
 import sys
-from pykeyboard import keyboards
-from pykeyboard.keys import ENTER
 sys.path.append(os.path.dirname(__file__))
 from utils import *
-from win32api import GetSystemMetrics
-WIDTH= GetSystemMetrics(0)
-HEIGHT= GetSystemMetrics(1)
+
 #cap.set(cv2.CAP_PROP_POS_FRAMES,int(frame_count/2))
 #milliseconds = 1000*60
 #cap.set(cv2.CAP_PROP_POS_MSEC, milliseconds)
-def get_cam_properties(cap)->dict:
+def get_cam_properties(cap):
     """
     return dictionary of fps and frame count
     """
@@ -70,25 +66,24 @@ class FPS():
         return frames/time_passed
     def start(self):
         self.start_t=time.time()
-    def end(self):
+    def end(self,frame=None):
         starttime=self.start_t
         self.start_t=time.time()
-        return (1/(time.time()-starttime))
-class VIDEO_SAVER(cv2.VideoWriter):
-    def __init__(self,file_name,fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
-         ,fps=20.0,shape=(1024,1024),frames=[]):
-        time_stamp=datetime.datetime.now().strftime("%H-%M-%S")
-        folder_name=datetime.datetime.now().strftime("%d-%m-%Y")
-        capture_vedio=cv2.VideoWriter()
-        for frame in frames:
-            self.write(frame)
-    def save(self):
-        return super().release()
-     
+        fps=int(1/(time.time()-starttime))
+        if not frame is None:
+            cv2.putText(frame,str(fps),(20,50),cv2.FONT_HERSHEY_COMPLEX,2,(0,255,0))
+        return fps
+   
 class Fast_set_cam(cv2.VideoCapture):
+
     def __init__(self,url):
         super().__init__(url)
     def start(self):
+        from win32api import GetSystemMetrics
+        WIDTH= GetSystemMetrics(0)
+        HEIGHT= GetSystemMetrics(1)
+        from pykeyboard import keyboards
+        from pykeyboard.keys import ENTER
         self.control=keyboards()
 
         print("setting camera")
@@ -119,5 +114,5 @@ class Fast_set_cam(cv2.VideoCapture):
         cv2.destroyAllWindows()
         self.control.stop_checking_all()
 if __name__=="__main__":
-    print(WIDTH,HEIGHT)
+    #print(WIDTH,HEIGHT)
     Fast_set_cam("http://192.168.0.104:8080/video").start()

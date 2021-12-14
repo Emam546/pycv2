@@ -1,23 +1,53 @@
 import mediapipe as mp,cv2,math,numpy as np,time
+from google.protobuf.json_format import MessageToDict
 mpDraw=mp.solutions.drawing_utils
 mp_hand=mp.solutions.hands
+HAND_LANDMARKS_LENGTH=21
+HAND_CONNECTIONS=mp_hand.HAND_CONNECTIONS
+LEFT_HAND="left"
+RIGHT_HAND="right"
 tipIds = [4, 8, 12, 16, 20]
-class Hand_detector():
+class Hand_detector(mp_hand.Hands):
     def __init__(self,mode=False,maxhands=2,detectioncon=0.5,trackcon=0.5,drawSpec=mpDraw.DrawingSpec()):
+        super().__init__(mode,maxhands,detectioncon,trackcon)
         self.drawSpec=drawSpec
-        self.hands=mp_hand.Hands(mode,maxhands,detectioncon,trackcon)
-    def find_hands(self,img,draw=True):
+        self.results=None
+    
+    def find_hands(self,img):
+        img.flags.writeable = False
         imgRgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        self.result=self.hands.process(imgRgb)
-        if self.result.multi_hand_landmarks:
-            for handLms in self.result.multi_hand_landmarks:
-                if draw:mpDraw.draw_landmarks(img,handLms,mp_hand.HAND_CONNECTIONS,self.drawSpec,self.drawSpec)
+        self.result=self.process(imgRgb)
+        img.flags.writeable = True
+        return self.result
+        
+
+    def draw_land_marks(self,img,results=None):
+        if results is None:
+            results=self.result
+        if results.multi_hand_landmarks:
+            for handLms in results.multi_hand_landmarks:
+                mpDraw.draw_landmarks(img,handLms,HAND_CONNECTIONS,self.drawSpec,self.drawSpec)
         return img
+    def hands_type(self,results=None):
+        if results is None:
+            results=self.result
+        hand_type={}
+        hand_classification=results.multi_handedness
+        for num,hand in enumerate(hand_classification):
+            hand=MessageToDict(hand)["classification"][0]
+            label=hand["label"] 
+            if label not in hand_type:
+                hand_type[label]=num
+            else:
+                other_hand=hand_classification[hand_type[label]]["score"]
+                if other_hand["score"]>hand["score"]:
+                    hand_type[label]=num
+        return hand_type
     def findpositions(self,img,handnum=0,draw=True):
         lmlist=[]
         if self.result.multi_hand_landmarks:
             handLms = self.result.multi_hand_landmarks[handnum]
-            for id,lm in enumerate(handLms.landmark):
+            for lm in handLms.landmark:
                 h,w,c=img.shape
                 cx,cy=int(lm.x*w),int(lm.y*h)
                 lmlist.append([cx,cy])
@@ -51,49 +81,37 @@ class Hand_detector():
             if drawtext:
                 cv2.putText(img,str(int(angel)),(x2-10,y2),font,fontscale,tcolor,textthickness)
         return angel
-    def get_results(self,img):
-        imgRgb=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-        return self.hands.process(imgRgb)
-    def fingersUp(self,img):
-        """
-        Finds how many fingers are open and returns in a list.
-        Considers left and right hands separately
-        :return: List of which fingers are up
-        """
-        results=self.get_results()
+def main():
+    from pycv2.img.utils import resizeimage_keeprespective
+    from pycv2.tools.cam import FPS
+    from pykeyboard import keyboards
+    from pykeyboard.keys import ESC
+    control=keyboards()
+    cap=cv2.VideoCapture("http://192.168.0.104:8080/video")
+    hand_detector=Hand_detector()
+    fps=FPS()
+    while True:
+        fps.start()
+        ret,frame=cap.read()
+        if not ret or control.pressedkey(ESC):
+            break
         
-        if results.multi_hand_landmarks:
-            myHandType = self.handType()
-            fingers = []
-            # Thumb
-            if myHandType == "Right":
-                lmlist=self.findpositions(img,)
-                if self.lmList[tipIds[0]][0] > self.lmList[tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
-            else:
-                if self.lmList[tipIds[0]][0] < self.lmList[tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
-
-            # 4 Fingers
-            for id in range(1, 5):
-                if self.lmList[tipIds[id]][1] < self.lmList[tipIds[id] - 2][1]:
-                    fingers.append(1)
-                else:
-                    fingers.append(0)
-        return fingers
-    def handType(self,img):
-        """
-        Checks if the hand is left or right
-        :return: "Right" or "Left"
-        """
-        results=self.get_results()
-        if results.multi_hand_landmarks:
-            lmList=self.findpositions(img,0,False)
-            if lmList[17][0] < lmList[5][0]:
-                return "Right"
-            else:
-                return "Left"
+        frame=hand_detector.find_hands(frame,True)
+        fps.end(frame)
+        if frame is None:
+            break
+        cv2.imshow("WINDOW",frame)
+        cv2.waitKey(1)
+    control.stop_checking_all()
+    hand_types=hand_detector.hands_type()
+    for label,handnum in hand_types.items():
+        handLms = hand_detector.result.multi_hand_landmarks[handnum]
+        
+        print(MessageToDict(handLms.landmark[0]))
+    # get_img=len(hand_detector.result.multi_hand_landmarks[hand_type.values()[0]])
+        
+    
+    # print(type(hand_detector.result.multi_hand_landmarks))
+    # print(get_img)
+if __name__=="__main__":
+    main()

@@ -292,7 +292,13 @@ def get_blured_thresh(thresh):
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,3))
     return cv2.dilate(close, dilate_kernel, iterations=1)
 
-
+def get_rotated_box(box,theta):
+    b=box
+    c=(b[0]+b[2]//2),b([1]+b[3]//2)
+    new_pts=[]
+    for pt in xywh_2_pts(box[:4]):
+        new_pts.append(get_rotated_point(c,pt,theta))
+    return new_pts
 def get_rotated_point(center,pt,theta):
     rotated_x = math.cos(theta) * (pt[0] - center[0]) - math.sin(theta) * (pt[1] - center[1]) + center[0]
     rotated_y = math.sin(theta) * (pt[0] - center[0]) + math.cos(theta) * (pt[1]- center[1]) + center[1]

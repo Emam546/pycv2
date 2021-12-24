@@ -25,7 +25,11 @@ def rotate_all_image(image, angle,):
     M[1, 2] += (nH / 2) - cY
     # perform the actual rotation and return the image
     return cv2.warpAffine(image, M, (nW, nH))
-
+def rotate_keep_prestective(img,angle,center=None,scale=1):
+    
+    
+    rot_mat = cv2.getRotationMatrix2D( center, angle, scale )
+    warp_rotate_dst = cv2.warpAffine(warp_dst, rot_mat, (warp_dst.shape[1], warp_dst.shape[0]))
 def rotate_object(pos,cropedimg,completeimg,angle,thresh=None):
         if thresh is None:
             thresh=np.ones(cropedimg.shape[:2],"uint8")

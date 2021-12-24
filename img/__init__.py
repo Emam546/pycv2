@@ -72,4 +72,15 @@ def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
             src[x + i][y + j] = alpha * overlay[i][j][:3] + (1 - alpha) * src[x + i][y + j]
     return src
 
+def cluster_img(img,k):
+    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    flags = cv2.KMEANS_RANDOM_CENTERS
+    Z = img.reshape((-1,3))
+    # convert to np.float32
+    Z = np.float32(Z)
+    _,label,center = cv2.kmeans(Z,k,None,criteria,10,flags)
+    center = np.uint8(center)
+    res = center[label.flatten()]
+    return res.reshape((img.shape))
+
     

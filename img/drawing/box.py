@@ -1,4 +1,5 @@
 import cv2
+COLORS_OF_WRAPPING = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
 def fancydraw(img,bbox,l=30,color=(0,255,0),thickness=10):
     x,y,w,h=bbox
     x1,y1=x+w,y+h
@@ -31,7 +32,6 @@ def draw_rotated_box_img(imgcv,circles=None):
         cv2.circle(resultimg, circles[x],
                 6, (0, 0, 255), cv2.FILLED)
     return resultimg
-COLORS_OF_WRAPPING = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
 def draw_box_moving(img,circles:list,
         color_line=(255,255,0),thickness=2,radius=2,
         colors:tuple=COLORS_OF_WRAPPING):

@@ -258,8 +258,9 @@ def get_containing_boxs(all_points):
     max_y=sorted(postions[1],reverse=True)[0]
     return min_x,min_y,(max_x-min_x),(max_y-min_y)
 
-def newbox(box,threshimg):
+def newbox(threshimg,box=None):
         #the croped_threshimage
+        box=box if not box is None else [0,0,threshimg.shape[1],threshimg.shape[0]] 
         contours = cv2.findContours(threshimg,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0]
         if len(contours)!=0:
             all_points=[]

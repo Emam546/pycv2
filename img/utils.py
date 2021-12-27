@@ -324,11 +324,8 @@ def add_back_ground(img,mask,another_img):
     img[mask]=another_img[mask]
     return img
 def bluring(img,mask,radius=7):
-    img2= img.copy()
     bluredimg=cv2.blur(img.copy(),(radius,radius))
-    result1=cv2.bitwise_and(bluredimg,bluredimg,mask=mask)
-    result2=cv2.bitwise_and(img2.copy(),img2.copy(),mask=255-mask)
-    return cv2.add(result1,result2)
+    return add_back_ground(img,mask,bluredimg)
 def isgray(img):
     if len(img.shape) < 3: return True
     if img.shape[2]  == 1: return True

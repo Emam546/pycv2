@@ -25,20 +25,31 @@ def rotate_all_image(image, angle,):
     M[1, 2] += (nH / 2) - cY
     # perform the actual rotation and return the image
     return cv2.warpAffine(image, M, (nW, nH))
-def rotate_keep_prestective(img,angle,center=None,scale=1):
+
+def rotate_object(pos,cropedimg,src,angle,thresh=None,box=None):
+    thresh=thresh if not thresh is None else np.ones(cropedimg.shape[:2],"uint8")*255
+    oh,ow=cropedimg.shape[:2]
+    img_box=np.zeros((oh,ow),"uint8")
+    box=box if not box is None else [0,0,ow,oh]
+    cv2.rectangle(img_box,[box[0]-pos[0],box[1]-pos[1]],box[2:],255,cv2.FILLED)
+
+    pos=pos.copy()
+    resultimg=src.copy()
+    rotated_img=rotate_all_image(cropedimg,angle)
+    rotated_mask=rotate_all_image(thresh,angle)
+    img_box=rotate_all_image(img_box,angle)
+    rotated_mask=cv2.bitwise_and(img_box,rotated_mask)
+
+    h,w=rotated_img.shape[:2]
+    #clamping the box
+    pos[0]+=(ow-w)//2
+    pos[1]+=(oh-h)//2
+    _x=0 if pos[0]>0 else abs(pos[0])
+    _y=0 if pos[1]>0 else abs(pos[1])
+    #to decrease the width and height either
+    b=pts_2_xywh(clamp_points(xywh_2_pts([pos[0],pos[1],w,h]),resultimg))
+    thresh=rotated_mask.astype(np.bool)[_y:b[3]+_y,_x:b[2]+_x]
     
+    resultimg[b[1]:b[1]+b[3],b[0]:b[0]+b[2]][thresh]=rotated_img[_y:b[3]+_y,_x:b[2]+_x][thresh]
     
-    rot_mat = cv2.getRotationMatrix2D( center, angle, scale )
-    warp_rotate_dst = cv2.warpAffine(warp_dst, rot_mat, (warp_dst.shape[1], warp_dst.shape[0]))
-def rotate_object(pos,cropedimg,completeimg,angle,thresh=None):
-        if thresh is None:
-            thresh=np.ones(cropedimg.shape[:2],"uint8")
-            thresh=cv2.bitwise_not(thresh)
-        resultimg=completeimg.copy()
-        rotated_img=rotate_all_image(cropedimg.copy(),angle)
-        rotated_mask=rotate_all_image(thresh.copy(),angle)
-        h,w=rotated_img.shape[:2]
-        b=clamp_box([pos[0],pos[1],w,h],completeimg)
-        thresh=rotated_mask.astype(np.bool)[0:b[3],0:b[2]]
-        resultimg[b[1]:b[1]+b[3],b[0]:b[0]+b[2]][thresh]=rotated_img[0:b[3],0:b[2]][thresh]
-        return resultimg
+    return resultimg

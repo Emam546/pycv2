@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import cv2,numpy as np,imutils
 from scipy.spatial import distance as dist
 from skimage.metrics import structural_similarity as compare_ssim
@@ -41,8 +42,8 @@ def clamp_box(box,imgcv):
     box[2]=max(0,min(box[0]+box[2],w)-box[0])
     box[3]=max(0,min(box[1]+box[3],h)-box[1])
     return box
-def clamp_points(points,imgcv):
-    points=convert_tupel_to_list(points)
+def clamp_points(points: list,imgcv):
+    points=list(points.copy())
     if len(points)==4:
         for id,pt in enumerate(points):
             points[id]=clamp_point(pt,imgcv)
@@ -57,7 +58,8 @@ def clamp_point(pt,imgcv):
     return pt
 def centerbox(box):
     return box[0]+int(box[2]/2),box[1]+int(box[3]/2)
-    
+def center_pts(pts):
+    return centerbox(pts_2_xywh(pts))
 def compare_maskes(mask1,mask2):
     if mask1.shape==mask2.shape:
         newmask=cv2.bitwise_xor(mask1,mask2)
@@ -68,7 +70,7 @@ def compare_maskes(mask1,mask2):
 def ARE_EQUALE(img1,img2):
     if img1 is None or img2 is None:return False
     if img1.shape==img2.shape:
-        diff=np.subtract(img1,img2)
+        diff=np.subtract(img1.astype(np.float),img2.astype(np.float))
         mask=diff!=0
         if np.unique(mask).shape[0]>1:
             return False
@@ -92,9 +94,8 @@ def checksimilarty(img1,img2):
     else:return False
 
 def convert_tupel_to_list(object):
-    if type(object) in [tuple,list]:
-        if type(object)==tuple:
-            object=list(object)
+    if isinstance(object,Iterable):
+        object=list(object)
         for id,x in enumerate(object):
             object[id]=convert_tupel_to_list(x)
     return object
@@ -235,7 +236,7 @@ def organise_pts(pts):
 def rgb_to_hex(r, g, b):
     def clamp(x): 
         return max(0, min(x, 255))
-    return "{0:02x}{1:02x}{2:02x}".format(clamp(r), clamp(g), clamp(b))
+    return "#{0:02x}{1:02x}{2:02x}".format(clamp(r), clamp(g), clamp(b))
 def hex_to_rgb(hexcolor:str):
     match=re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', str(hexcolor))
     if match:
@@ -259,17 +260,17 @@ def get_containing_boxs(all_points):
     return min_x,min_y,(max_x-min_x),(max_y-min_y)
 
 def newbox(threshimg,box=None):
-        #the croped_threshimage
-        box=box if not box is None else [0,0,threshimg.shape[1],threshimg.shape[0]] 
-        contours = cv2.findContours(threshimg,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0]
-        if len(contours)!=0:
-            all_points=[]
-            for cnt in contours: 
-               all_points.append(xywh_2_pts(cv2.boundingRect(cnt)))
-            the_new_box=list(get_containing_boxs(all_points))
-            the_new_box[0]+=box[0];the_new_box[1]+=box[1]
-            return the_new_box
-        return box
+    #the croped_threshimage
+    box=box if not box is None else [0,0,threshimg.shape[1],threshimg.shape[0]] 
+    contours = cv2.findContours(threshimg,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0]
+    if len(contours)!=0:
+        all_points=[]
+        for cnt in contours: 
+            all_points.append(xywh_2_pts(cv2.boundingRect(cnt)))
+        the_new_box=list(get_containing_boxs(all_points))
+        the_new_box[0]+=box[0];the_new_box[1]+=box[1]
+        return the_new_box
+    return box
         
 
 def get_blured_thresh(thresh):
@@ -293,11 +294,16 @@ def get_blured_thresh(thresh):
     dilate_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,3))
     return cv2.dilate(close, dilate_kernel, iterations=1)
 
-def get_rotated_box(box,theta):
-    b=box
-    c=(b[0]+b[2]//2),b([1]+b[3]//2)
+def get_rotated_box(box,theta,center=None):
+    c=center if not center is None else centerbox(box)
     new_pts=[]
     for pt in xywh_2_pts(box[:4]):
+        new_pts.append(get_rotated_point(c,pt,theta))
+    return pts_2_xywh(new_pts)
+def get_rotated_pts(pts,theta,center=None):
+    c=center if not center is None else center_pts(pts)
+    new_pts=[]
+    for pt in pts:
         new_pts.append(get_rotated_point(c,pt,theta))
     return new_pts
 def get_rotated_point(center,pt,theta):
@@ -317,9 +323,7 @@ def pyramids(img,num:int):
 def color_back_ground(img,mask,color:tuple):
     coloredbackground=np.zeros(img.shape,dtype="uint8")
     coloredbackground[:] = color
-    result1=cv2.bitwise_and(img,img,mask=255-mask)
-    result2=cv2.bitwise_and(coloredbackground,coloredbackground,mask=mask)
-    return cv2.add(result1,result2)
+    return add_back_ground(img,mask,coloredbackground)
 def add_back_ground(img,mask,another_img):
     mask=mask.astype(np.bool)
     img[mask]=another_img[mask]

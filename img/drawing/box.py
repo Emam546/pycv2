@@ -58,9 +58,6 @@ def draw_box_moving(img,circles:list,
         color_line=(255,255,0),thickness=2,radius=2,
         colors:tuple=COLORS_OF_WRAPPING,center_state=False,colorcenter=(0,0,255)):
     img=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR) if len(img.shape)==2 else img
-
-    circles=circles.copy()
-
     for id,pt in enumerate(circles):
         if id<=2 and len(circles)>=id+2:
             cv2.line(img,pt,circles[id+1],color_line,thickness)

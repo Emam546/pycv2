@@ -1,4 +1,4 @@
-import cv2,math,pykeyboard as key,numpy as np
+import cv2,numpy as np
 from pycv2.img.utils import *
 
 def rotate(image,angel):

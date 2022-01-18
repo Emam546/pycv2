@@ -1,7 +1,7 @@
 from collections.abc import Iterable
-import cv2,numpy as np,imutils
+import cv2,numpy as np
 from scipy.spatial import distance as dist
-from skimage.metrics import structural_similarity as compare_ssim
+#from skimage.metrics import structural_similarity as compare_ssim
 import math
 import re
 
@@ -79,19 +79,19 @@ def ARE_EQUALE(img1,img2):
         
     else:
         return False
-def checksimilarty(img1,img2):
-    if img1 is None or img2 is None:return False
-    if img1.shape==img2.shape:
-        grayA=cv2.cvtColor(img1.copy(),cv2.COLOR_BGR2GRAY)
-        grayB=cv2.cvtColor(img2.copy(),cv2.COLOR_BGR2GRAY)
-        difference=compare_ssim(grayA, grayB, full=True)[1]
-        thresh=cv2.threshold(difference,0,255,cv2.THRESH_BINARY_INV)[1]
-        for color in cv2.split(thresh):
-            if cv2.countNonZero(color)!=0:
-                #print(cv2.countNonZero(color))
-                return False
-        return True
-    else:return False
+# def checksimilarty(img1,img2):
+#     if img1 is None or img2 is None:return False
+#     if img1.shape==img2.shape:
+#         grayA=cv2.cvtColor(img1.copy(),cv2.COLOR_BGR2GRAY)
+#         grayB=cv2.cvtColor(img2.copy(),cv2.COLOR_BGR2GRAY)
+#         difference=compare_ssim(grayA, grayB, full=True)[1]
+#         thresh=cv2.threshold(difference,0,255,cv2.THRESH_BINARY_INV)[1]
+#         for color in cv2.split(thresh):
+#             if cv2.countNonZero(color)!=0:
+#                 #print(cv2.countNonZero(color))
+#                 return False
+#         return True
+#     else:return False
 
 def convert_tupel_to_list(object):
     if isinstance(object,Iterable):
@@ -174,12 +174,12 @@ def resizeimage_keeprespective(img, width = None, height = None, inter = cv2.INT
     return resized
 
 
-def Zoom(img, zoomSize):
-    img = imutils.resize(img, width=(zoomSize * img.shape[1]))
-    center = (img.shape[0]/2,img.shape[1]/2)
-    cropScale = (center[0]/zoomSize, center[1]/zoomSize)
-    img = img[cropScale[0]:(center[0] + cropScale[0]), cropScale[1]:(center[1] + cropScale[1])]
-    return img
+# def Zoom(img, zoomSize):
+#     img = cv2.resize(img, width=(zoomSize * img.shape[1]))
+#     center = (img.shape[0]/2,img.shape[1]/2)
+#     cropScale = (center[0]/zoomSize, center[1]/zoomSize)
+#     img = img[cropScale[0]:(center[0] + cropScale[0]), cropScale[1]:(center[1] + cropScale[1])]
+#     return img
 
 
 def closest_node(node, nodes,maxdistance=999999999):

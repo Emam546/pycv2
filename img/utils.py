@@ -53,8 +53,8 @@ def clamp_points(points: list,imgcv):
 def clamp_point(pt,imgcv):
     h,w=imgcv.shape[:2]
     pt=list(pt)
-    pt[0]=max(0,min(int(pt[0]),w))
-    pt[1]=max(0,min(int(pt[1]),h))
+    pt[0]=max(0,min(int(pt[0]),w-1))
+    pt[1]=max(0,min(int(pt[1]),h-1))
     return pt
 def centerbox(box):
     return box[0]+int(box[2]/2),box[1]+int(box[3]/2)

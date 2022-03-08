@@ -1,1 +1,1 @@
-from pycv2.img.drawing.box import fancydraw,drawbox
+from pycv2.img.drawing.box import *

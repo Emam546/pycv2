@@ -1,10 +1,8 @@
 import cv2,numpy as np
 from imutils import contours
-import os
-import sys
-sys.path.append(os.path.dirname(__file__))
-from utils import *
-from roate_img import *
+import imutils
+from pycv2.img.utils import *
+from pycv2.img.roate_img import *
 COLORS = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
 def get_contours(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

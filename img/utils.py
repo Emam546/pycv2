@@ -44,12 +44,11 @@ def clamp_box(box,imgcv):
     return box
 def clamp_points(points: list,imgcv):
     points=list(points.copy())
-    if len(points)==4:
-        for id,pt in enumerate(points):
-            points[id]=clamp_point(pt,imgcv)
-        return points
-    else:
-        raise"the number of points is not four"
+    
+    for id,pt in enumerate(points):
+        points[id]=clamp_point(pt,imgcv)
+    return points
+    
 def clamp_point(pt,imgcv):
     h,w=imgcv.shape[:2]
     pt=list(pt)
@@ -117,8 +116,8 @@ def order_points(pts):
 	D = dist.cdist(tl[np.newaxis], rightMost, "euclidean")[0]
 	(br, tr) = rightMost[np.argsort(D)[::-1], :]
 	return np.array([tl, tr, br, bl], dtype="float32")
-def four_point_transform(image, pts):
-    rect = order_points(pts)
+def four_point_transform(src, pts):
+    rect = pts
     (tl, tr, br, bl) = rect
     widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
     widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
@@ -132,7 +131,7 @@ def four_point_transform(image, pts):
         [maxWidth - 1, maxHeight - 1],
         [0, maxHeight - 1]], dtype = "float32")
     M = cv2.getPerspectiveTransform(rect, dst)
-    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    warped = cv2.warpPerspective(src, M, (maxWidth, maxHeight))
     return warped
 def padimage(img,pad):
     return img[pad:img.shape[0]-pad,pad:img.shape[1]-pad]
@@ -181,18 +180,22 @@ def resizeimage_keeprespective(img, width = None, height = None, inter = cv2.INT
 #     img = img[cropScale[0]:(center[0] + cropScale[0]), cropScale[1]:(center[1] + cropScale[1])]
 #     return img
 
-
-def closest_node(node, nodes,maxdistance=999999999):
+def closest_node_index(node, nodes,maxdistance=float("inf")):
     pt = None
-    dist = 9999999
-    for n in nodes:
+    dist = maxdistance
+    for i,n in enumerate(nodes):
         if  distance(node,n)<maxdistance and distance(node, n) <= dist:
             dist = distance(node, n)
-            pt = n
+            pt = i,n
     return pt
+def closest_node(node, nodes,maxdistance=float("inf")):
+    close=closest_node_index(node, nodes,maxdistance)
+    if close!=None:
+        return close[1]
+    else:
+        return close
 def all_closetest_nodes(node, nodes,maxdistance=999999999):
     pt = []
-    dist = 9999999
     for n in nodes:
         if  distance(node,n)<maxdistance:
             pt.append(n)
@@ -324,7 +327,7 @@ def color_back_ground(img,mask,color:tuple):
     coloredbackground=np.zeros(img.shape,dtype="uint8")
     coloredbackground[:] = color
     return add_back_ground(img,mask,coloredbackground)
-def add_back_ground(img,mask,another_img):
+def add_back_ground(img,mask:np.ndarray,another_img:np.ndarray):
     mask=mask.astype(np.bool)
     img[mask]=another_img[mask]
     return img

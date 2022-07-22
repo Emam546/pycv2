@@ -33,6 +33,7 @@ def box_with_mouse(img):
                 if np.array_equal(circles[x],close):
                     circles[x]=[0,0];print("Delet")
                     counter-=1    
+    
     while True:
         if counter>=4:
             if key.pressedkey(0x0D):break

@@ -1,6 +1,5 @@
 import cv2
 import time
-import datetime
 import os 
 import sys
 from pathlib import Path
@@ -29,7 +28,7 @@ def show_cam_prop(cap:cv2.VideoCapture):
     seconds = duration%60
     print('duration (M:S) = ' + str(minutes) + ':' + str(seconds))
 def video_saver(file_name,video_capture,fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
-    ,start_time=0,end_time=999999999,fps_v=None,funct=None):
+    ,start_time=0,end_time=float("inf"),fps_v=None,funct=None):
     h,w=video_capture.read()[1].shape[:2]
     
     fps,frame_count=list(get_cam_properties(video_capture).values())
@@ -42,12 +41,12 @@ def video_saver(file_name,video_capture,fourcc=cv2.VideoWriter_fourcc("m","p","4
     if fps_v is None:
         fps_v=fps
     out=cv2.VideoWriter(file_name,fourcc,fps_v,(w,h))
-    for _ in progressBar(list(range(start_frame,end_frame)), prefix = 'Progress:', suffix = 'Complete', length = 50):
+    for _ in progressBar(range(start_frame,end_frame), prefix = 'Progress:', suffix = 'Complete', length = 50):
         success,frame=video_capture.read()
         if not success:break
         if not funct is None:
             frameNumber=video_capture.get(cv2.CAP_PROP_POS_FRAMES)
-            frame=funct(frame,frameNumber=frameNumber,fps=fps)
+            frame=funct(frame,frameNumber,fps)
         out.write(frame)
     out.release()
 def conver_frames2video(file_name,

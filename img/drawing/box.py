@@ -36,7 +36,7 @@ def drawbox(img,bbox,color=(0,255,0),thickness=3,linetype=1):
 
 def draw_box_moving(img,points:list,
         color_line=(255,255,0),thickness=2,radius=2,
-        colors:tuple=COLORS_OF_WRAPPING,center_state=False,colorcenter=(0,0,255)):
+        colors:tuple=COLORS_OF_WRAPPING,center_state=False,colorcenter=(0,0,255),radius_center=2):
     img=cv2.cvtColor(img,cv2.COLOR_GRAY2BGR) if len(img.shape)==2 else img
     for id,pt in enumerate(points):
         if id<3 and len(points)>=id+2:
@@ -47,5 +47,5 @@ def draw_box_moving(img,points:list,
         n=min(id,len(colors)-1)
         cv2.circle(img,pt,radius,colors[n],cv2.FILLED)
     if center_state:
-        cv2.circle(img,center_pts(points),radius,colorcenter,cv2.FILLED)
+        cv2.circle(img,center_pts(points),radius_center,colorcenter,cv2.FILLED)
     return img

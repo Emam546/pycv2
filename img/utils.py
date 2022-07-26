@@ -66,6 +66,10 @@ def ARE_EQUALE(img1,img2):
         return not np.any(cv2.absdiff(img1,img2))
     else:
         return False
+<<<<<<< HEAD
+=======
+
+>>>>>>> c9ff1fe2f404d08b81086e389cfb6209c553a796
 
 
 def convert_tuple_to_list(object):
@@ -130,6 +134,11 @@ def resize_img(src, width = None, height = None,precent=None, inter = cv2.INTER_
         dim = (width, int(h * r))
     resized = cv2.resize(src, dim, interpolation = inter)
     return resized
+<<<<<<< HEAD
+=======
+def resizeimage_keeprespective(src, width = None, height = None,precent=None, inter = cv2.INTER_AREA):
+    return resize_img(src, width, height,precent, inter )
+>>>>>>> c9ff1fe2f404d08b81086e389cfb6209c553a796
 def closest_node_index(node, nodes,maxdistance=float("inf")):
     points,pos=np.array(nodes),np.array(node)
     dist=np.sqrt(np.sum((points-pos)**2,axis=1))

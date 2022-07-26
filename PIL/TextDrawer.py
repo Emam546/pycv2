@@ -1,6 +1,5 @@
-
 from PIL.ImageDraw import ImageDraw
-#text size=draw.textsize(text)
+
 
 class TextDrawer(ImageDraw):
     def text2lines(self,
@@ -44,7 +43,7 @@ class TextDrawer(ImageDraw):
             if i!=len(lines)-1:
                 new_text+="\n"
         return new_text
-  
+
 def Draw(im, mode=None):
     try:
         return im.getdraw(mode)
@@ -67,7 +66,7 @@ def __example():
 
     cv2.imshow("image",pil2cv(imgPi))
     cv2.waitKey(0)
- 
+
 if __name__=="__main__":
     import os,sys
     

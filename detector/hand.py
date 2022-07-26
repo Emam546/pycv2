@@ -83,7 +83,7 @@ class Hand_detector(mp_hand.Hands):
                 cv2.putText(img,str(int(angel)),(x2-10,y2),font,fontscale,tcolor,textthickness)
         return angel
 def main():
-    from pycv2.img.utils import resizeimage_keeprespective
+    from pycv2.img.utils import resize_img
     from pycv2.tools.cam import FPS
     from pykeyboard import keyboards
     from pykeyboard.keys import ESC

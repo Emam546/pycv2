@@ -1,7 +1,9 @@
 import pytesseract,cv2,numpy as np
 from pytesseract import Output 
-file="H:\progrem file\Tesseract-Ocr\\tesseract.exe"
-
+Tesseract_file=None
+def init_tesseract_path(filePath):
+    global Tesseract_file
+    Tesseract_file=filePath    
 def read_text(mask):
     d=get_img_infromations(mask)
     dic=[]
@@ -20,10 +22,14 @@ def read_text(mask):
             text+=val["text"]+" "          
     return text
 def get_img_infromations(img):
-    pytesseract.pytesseract.tesseract_cmd=file
+    if not Tesseract_file:
+        return print("YOU MUST INITIALIZE TESSERACT PATH FRIST")
+    pytesseract.pytesseract.tesseract_cmd=Tesseract_file
     return  pytesseract.image_to_data(img,output_type=Output.DICT)
 def get_img_boxes(img):
-    pytesseract.pytesseract.tesseract_cmd=file
+    if not Tesseract_file:
+        return print("YOU MUST INITIALIZE TESSERACT PATH FRIST")
+    pytesseract.pytesseract.tesseract_cmd=Tesseract_file
     h_img=img.shape[0]
     d=pytesseract.image_to_boxes(img,output_type=Output.DICT)
     boxes=[]
@@ -36,7 +42,9 @@ def get_img_boxes(img):
         boxes.append((text,(x,y,w,h)))
     return boxes
 def get_img_string(img):
-    pytesseract.pytesseract.tesseract_cmd=file
+    if not Tesseract_file:
+        return print("YOU MUST INITIALIZE TESSERACT PATH FRIST")
+    pytesseract.pytesseract.tesseract_cmd=Tesseract_file
     return pytesseract.image_to_string(img,lang="auto")
 def get_text_mask(img):
         mask=np.zeros(img.shape[:2], dtype=np.uint8)

@@ -10,7 +10,7 @@ def cv2pil(src):
 
 
 def __example():
-    img=cv2.imread("G:\python\opencv\images\messi5.jpg")
+    img=cv2.imread("messi5.jpg")
     print(cv2pil(img))
 if __name__=="__main__":
     __example()

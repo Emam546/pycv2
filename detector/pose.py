@@ -66,8 +66,7 @@ class poseDetctor():
         
 
     
-
-if __name__=="__main__":
+def __example():
     cap=cv2.VideoCapture("video3.mp4")
     ptime=0
     detector=poseDetctor(upperbody=True)
@@ -81,3 +80,6 @@ if __name__=="__main__":
         cv2.putText(img,str(int(fps)),(70,50),cv2.FONT_HERSHEY_COMPLEX,3,(0,255,0))
         cv2.imshow("show",img)
         cv2.waitKey(1)
+if __name__=="__main__":
+    __example()
+    

@@ -1,13 +1,9 @@
 import cv2
 import time
-import datetime
-import os 
-import sys
 from pathlib import Path
-sys.path.append(os.path.dirname(__file__))
-sys.path.append(os.path.dirname(Path(__file__).parent))
-from utils import *
-from img.utils import resizeimage_keeprespective
+
+from pycv2.tools.utils import *
+from pycv2.img.utils import resize_img
 
 #cap.set(cv2.CAP_PROP_POS_FRAMES,int(frame_count/2))
 #milliseconds = 1000*60
@@ -29,7 +25,7 @@ def show_cam_prop(cap:cv2.VideoCapture):
     seconds = duration%60
     print('duration (M:S) = ' + str(minutes) + ':' + str(seconds))
 def video_saver(file_name,video_capture,fourcc=cv2.VideoWriter_fourcc("m","p","4","v")
-    ,start_time=0,end_time=999999999,fps_v=None,funct=None):
+    ,start_time=0,end_time=float("inf"),fps_v=None,funct=None):
     h,w=video_capture.read()[1].shape[:2]
     
     fps,frame_count=list(get_cam_properties(video_capture).values())
@@ -42,12 +38,12 @@ def video_saver(file_name,video_capture,fourcc=cv2.VideoWriter_fourcc("m","p","4
     if fps_v is None:
         fps_v=fps
     out=cv2.VideoWriter(file_name,fourcc,fps_v,(w,h))
-    for _ in progressBar(list(range(start_frame,end_frame)), prefix = 'Progress:', suffix = 'Complete', length = 50):
+    for _ in progressBar(range(start_frame,end_frame), prefix = 'Progress:', suffix = 'Complete', length = 50):
         success,frame=video_capture.read()
         if not success:break
         if not funct is None:
             frameNumber=video_capture.get(cv2.CAP_PROP_POS_FRAMES)
-            frame=funct(frame,frameNumber=frameNumber,fps=fps)
+            frame=funct(frame,frameNumber,fps)
         out.write(frame)
     out.release()
 def conver_frames2video(file_name,
@@ -60,7 +56,7 @@ def conver_frames2video(file_name,
             frame=funct(frame,frameNumber=id,fps=fps_v)
         out.write(frame)
     out.release()
-#fps the number of frames per sconds
+#fps the number of frames per seconds
 class FPS():
     def __init__(self):
         self.start_t=0
@@ -76,7 +72,7 @@ class FPS():
         if not frame is None:
             cv2.putText(frame,str(fps),(20,50),cv2.FONT_HERSHEY_COMPLEX,2,(0,255,0))
         return fps
-   
+
 class VIDEO_SAVER(cv2.VideoCapture):
     def __init__(self,url):
         super().__init__(url)
@@ -100,9 +96,9 @@ class VIDEO_SAVER(cv2.VideoCapture):
                 print("fialed")
                 break  
             if frame.shape[0]>=HEIGHT-400:
-                frame=resizeimage_keeprespective(frame,height=HEIGHT)
+                frame=resize_img(frame,height=HEIGHT)
             if frame.shape[1]>=WIDTH-20:
-                frame=resizeimage_keeprespective(frame,width=WIDTH)
+                frame=resize_img(frame,width=WIDTH)
             if control.pressedkey(ENTER):
                 frames.append(frame)
                 print(len(frames))
@@ -133,12 +129,12 @@ class Fast_set_cam(cv2.VideoCapture):
             ret, frame = self.read()
            
             if not ret:
-                print("fialed")
+                print("failed")
                 break  
             if frame.shape[0]>=HEIGHT-400:
-                frame=resizeimage_keeprespective(frame,height=HEIGHT)
+                frame=resize_img(frame,height=HEIGHT)
             if frame.shape[1]>=WIDTH-20:
-                frame=resizeimage_keeprespective(frame,width=WIDTH)
+                frame=resize_img(frame,width=WIDTH)
             cv2.imshow("WIDNDOW",frame)
             cv2.waitKey(token)
         cv2.destroyAllWindows()

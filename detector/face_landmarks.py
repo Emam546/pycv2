@@ -7,7 +7,6 @@ class Face_landmarks():
         self.drawSpec=drawSpec
         self.facemesh=mpfacemesh.FaceMesh(mode,max_num_faces,detect_confid,track_confid)
     def findface(self,img,draw=True):
-        w,h=img.shape[:2]
         imgRGB=cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
         results=self.facemesh.process(imgRGB)
         if draw and results.multi_face_landmarks:

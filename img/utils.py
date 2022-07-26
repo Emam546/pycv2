@@ -1,19 +1,13 @@
 from collections.abc import Iterable
 import cv2,numpy as np
 from scipy.spatial import distance as dist
-#from skimage.metrics import structural_similarity as compare_ssim
 import math
 import re
 
         
 def remove_back_ground(mask,img):
     threshimg= cv2.threshold(mask, 0, 255, 0)[1]
-    black_img=np.zeros(img.shape,np.uint8)
-    result2 = cv2.bitwise_and(black_img,black_img,mask=threshimg)
-    maskimg = cv2.bitwise_and(img.copy(),img.copy(),mask=255-threshimg)
-    #the removed image
-    finalimage=cv2.add(maskimg,result2)
-    return finalimage
+    return cv2.bitwise_and(img,img,mask=255-threshimg)
 
 def duplicate_image(img,shape):
     "shape is height and width"
@@ -33,7 +27,7 @@ def duplicate_image(img,shape):
         start[0]=y
         
     return newimage
- 
+
 def clamp_box(box,imgcv):
     box=list(box)
     h,w=imgcv.shape[:2]
@@ -69,34 +63,16 @@ def compare_maskes(mask1,mask2):
 def ARE_EQUALE(img1,img2):
     if img1 is None or img2 is None:return False
     if img1.shape==img2.shape:
-        diff=np.subtract(img1.astype(np.float),img2.astype(np.float))
-        mask=diff!=0
-        if np.unique(mask).shape[0]>1:
-            return False
-        else:
-            return True
-        
+        return not np.any(cv2.absdiff(img1,img2))
     else:
         return False
-# def checksimilarty(img1,img2):
-#     if img1 is None or img2 is None:return False
-#     if img1.shape==img2.shape:
-#         grayA=cv2.cvtColor(img1.copy(),cv2.COLOR_BGR2GRAY)
-#         grayB=cv2.cvtColor(img2.copy(),cv2.COLOR_BGR2GRAY)
-#         difference=compare_ssim(grayA, grayB, full=True)[1]
-#         thresh=cv2.threshold(difference,0,255,cv2.THRESH_BINARY_INV)[1]
-#         for color in cv2.split(thresh):
-#             if cv2.countNonZero(color)!=0:
-#                 #print(cv2.countNonZero(color))
-#                 return False
-#         return True
-#     else:return False
 
-def convert_tupel_to_list(object):
+
+def convert_tuple_to_list(object):
     if isinstance(object,Iterable):
         object=list(object)
         for id,x in enumerate(object):
-            object[id]=convert_tupel_to_list(x)
+            object[id]=convert_tuple_to_list(x)
     return object
 def conv_pts_to_np(pts): 
     return np.array(pts)
@@ -136,70 +112,42 @@ def four_point_transform(src, pts):
 def padimage(img,pad):
     return img[pad:img.shape[0]-pad,pad:img.shape[1]-pad]
 
-def resizeimg(img,precent=0.1):
-    return cv2.resize(img,(0,0),None,precent,precent)
 def rectContains(rect,pt):
     logic = rect[0] < pt[0] < rect[0]+rect[2] and rect[1] < pt[1] < rect[1]+rect[3]
     return logic
-def resizeimage_keeprespective(img, width = None, height = None, inter = cv2.INTER_AREA):
-    # initialize the dimensions of the image to be resized and
-    # grab the image size
+def resize_img(src, width = None, height = None,precent=None, inter = cv2.INTER_AREA):
+    if precent!=None:
+        return cv2.resize(src,(0,0),None,precent,precent,inter=inter)
     dim = None
-    (h, w) = img.shape[:2]
-
-    # if both the width and height are None, then return the
-    # original image
+    (h, w) = src.shape[:2]
     if width is None and height is None:
-        return img
-
-    # check to see if the width is None
+        return src
     if width is None:
-        # calculate the ratio of the height and construct the
-        # dimensions
         r = height / float(h)
         dim = (int(w * r), height)
-
-    # otherwise, the height is None
     else:
-        # calculate the ratio of the width and construct the
-        # dimensions
         r = width / float(w)
         dim = (width, int(h * r))
-
-    # resize the image
-    resized = cv2.resize(img, dim, interpolation = inter)
-
-    # return the resized image
+    resized = cv2.resize(src, dim, interpolation = inter)
     return resized
-
-
-# def Zoom(img, zoomSize):
-#     img = cv2.resize(img, width=(zoomSize * img.shape[1]))
-#     center = (img.shape[0]/2,img.shape[1]/2)
-#     cropScale = (center[0]/zoomSize, center[1]/zoomSize)
-#     img = img[cropScale[0]:(center[0] + cropScale[0]), cropScale[1]:(center[1] + cropScale[1])]
-#     return img
-
 def closest_node_index(node, nodes,maxdistance=float("inf")):
-    pt = None
-    dist = maxdistance
-    for i,n in enumerate(nodes):
-        if  distance(node,n)<maxdistance and distance(node, n) <= dist:
-            dist = distance(node, n)
-            pt = i,n
-    return pt
+    points,pos=np.array(nodes),np.array(node)
+    dist=np.sqrt(np.sum((points-pos)**2,axis=1))
+    pt=np.argmin(dist)
+    if dist[pt]>maxdistance:
+        return None
+    else:
+        return pt,dist[pt]
+
 def closest_node(node, nodes,maxdistance=float("inf")):
     close=closest_node_index(node, nodes,maxdistance)
     if close!=None:
         return close[1]
-    else:
-        return close
-def all_closetest_nodes(node, nodes,maxdistance=999999999):
-    pt = []
-    for n in nodes:
-        if  distance(node,n)<maxdistance:
-            pt.append(n)
-    return pt
+def all_closetest_nodes(node, nodes,maxdistance):
+    points,pos=np.array(nodes),np.array(node)
+    dist=np.sqrt(np.sum((points-pos)**2,axis=1))
+    return list(points[np.where(dist<maxdistance)])
+
 def distance(pt_1, pt_2):
     pt_1 = np.array((pt_1[0], pt_1[1]))
     pt_2 = np.array((pt_2[0], pt_2[1]))
@@ -214,7 +162,7 @@ def xywh_2_pts(box):
 def pts_2_xywh(pts):
     if len(pts)<=3:
         raise "the points are not four points"
-    x,y=99999999999999999,999999999999999999
+    x,y=float("inf"),float("inf")
     mx,my=0,0
     for pos in pts:
         if pos[0]<x:
@@ -228,7 +176,7 @@ def pts_2_xywh(pts):
     w,h=(mx-x),(my-y)
     return [x,y,w,h]    
     
-def organise_pts(pts):
+def organize_pts(pts):
     if len(pts)==4:
         circles=np.array(pts,np.float)
         circles=order_points(circles)
@@ -246,56 +194,34 @@ def hex_to_rgb(hexcolor:str):
         h = hexcolor.lstrip('#')
         return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
     else:raise "the hex color is not correct"
-def get_trasperancy_image(img,thresh):
+def get_transparency_image(img,thresh):
     b, g, r = cv2.split(img)
     rgba = [b,g,r, thresh]
     dst = cv2.merge(rgba,4)
     return dst
-def get_containing_boxs(all_points):
-    postions=[[],[]]
+def get_containing_boxes(all_points):
+    positions=[[],[]]
     for points in all_points:
         for pt in points:
-            postions[0].append(pt[0])
-            postions[1].append(pt[1])
-    min_x,min_y=sorted(postions[0])[0],sorted(postions[1])[0]
-    max_x=sorted(postions[0],reverse=True)[0]
-    max_y=sorted(postions[1],reverse=True)[0]
+            positions[0].append(pt[0])
+            positions[1].append(pt[1])
+    min_x,min_y=sorted(positions[0])[0],sorted(positions[1])[0]
+    max_x=sorted(positions[0],reverse=True)[0]
+    max_y=sorted(positions[1],reverse=True)[0]
     return min_x,min_y,(max_x-min_x),(max_y-min_y)
 
 def newbox(threshimg,box=None):
-    #the croped_threshimage
     box=box if not box is None else [0,0,threshimg.shape[1],threshimg.shape[0]] 
+    if cv2.countNonZero(threshimg)==0:return box
     contours = cv2.findContours(threshimg,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0]
     if len(contours)!=0:
         all_points=[]
         for cnt in contours: 
             all_points.append(xywh_2_pts(cv2.boundingRect(cnt)))
-        the_new_box=list(get_containing_boxs(all_points))
+        the_new_box=list(get_containing_boxes(all_points))
         the_new_box[0]+=box[0];the_new_box[1]+=box[1]
         return the_new_box
     return box
-        
-
-def get_blured_thresh(thresh):
-    edges=cv2.Laplacian(thresh,cv2.CV_64F,ksize=3)
-    edges=np.uint8(np.absolute(edges))
-    edges2 = cv2.Canny(thresh, 100, 255)
-    edges2 = cv2.dilate(edges, None)
-    edges2 = cv2.erode(edges, None)
-    
-    sobel_x=cv2.Sobel(thresh,cv2.CV_64F,1,0)
-    sobel_y=cv2.Sobel(thresh,cv2.CV_64F,0,1)
-    sobel_x=np.uint8(np.absolute(sobel_x))
-    sobel_y=np.uint8(np.absolute(sobel_y))
-    edges3=cv2.bitwise_or(sobel_x,sobel_y)
-    final_result=cv2.bitwise_or(edges,edges2)
-    final_result=cv2.bitwise_or(final_result,edges3)
-    
-    close_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (15,3))
-    close = cv2.morphologyEx(final_result, cv2.MORPH_CLOSE, close_kernel, iterations=1)
-
-    dilate_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,3))
-    return cv2.dilate(close, dilate_kernel, iterations=1)
 
 def get_rotated_box(box,theta,center=None):
     c=center if not center is None else centerbox(box)
@@ -323,17 +249,19 @@ def pyramids(img,num:int):
             gussing_pyramid=cv2.pyrDown(gussing_pyramid)
     return gussing_pyramid
 
-def color_back_ground(img,mask,color:tuple):
-    coloredbackground=np.zeros(img.shape,dtype="uint8")
-    coloredbackground[:] = color
-    return add_back_ground(img,mask,coloredbackground)
-def add_back_ground(img,mask:np.ndarray,another_img:np.ndarray):
+def color_back_ground(src,mask,color:tuple):
+    coloredbackground=src.copy()
+    coloredbackground[mask.astype(np.bool)]=color
+    return coloredbackground
+def add_back_ground(src,mask:np.ndarray,another_img:np.ndarray):
+    src=src.copy()
     mask=mask.astype(np.bool)
-    img[mask]=another_img[mask]
-    return img
-def bluring(img,mask,radius=7):
-    bluredimg=cv2.blur(img.copy(),(radius,radius))
-    return add_back_ground(img,mask,bluredimg)
+    src[mask]=another_img[mask]
+    return src
+def bluring(src,mask,radius=7):
+    src=src.copy()
+    bluredimg=cv2.blur(src,(radius,radius))
+    return add_back_ground(src,mask,bluredimg)
 def isgray(img):
     if len(img.shape) < 3: return True
     if img.shape[2]  == 1: return True

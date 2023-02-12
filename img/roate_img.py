@@ -1,12 +1,12 @@
 import cv2,numpy as np
 from pycv2.img.utils import *
 
-def rotate(image,angel):
+def rotate(image,angle):
     center=(int(image.shape[1]/2),int(image.shape[0]/2))
     shape = ( image.shape[1], image.shape[0] ) # cv2.warpAffine expects shape in (length, height)
-    matrix = cv2.getRotationMatrix2D( center=center, angle=(angel/np.pi), scale=1 )
+    matrix = cv2.getRotationMatrix2D( center=center, angle=(angle/np.pi), scale=1 )
     return cv2.warpAffine(image,matrix,shape)
-def rotate_all_image(image, angle):
+def rotate_all_image(image:np.ndarray, angle:int):
     # grab the dimensions of the image and then determine the
     # center
     (h, w) = image.shape[:2]
@@ -26,7 +26,7 @@ def rotate_all_image(image, angle):
     # perform the actual rotation and return the image
     return cv2.warpAffine(image, M, (nW, nH))
 
-def rotate_object(pos,cropedimg,src,angle,thresh=None,box=None):
+def rotate_object(pos,cropedimg,src,angle,thresh:None|np.ndarray=None,box:tuple|None=None):
     thresh=thresh if not thresh is None else np.ones(cropedimg.shape[:2],"uint8")*255
     oh,ow=cropedimg.shape[:2]
     img_box=np.zeros((oh,ow),"uint8")

@@ -4,3 +4,5 @@ mediapipe
 Pillow
 scipy
 imutils
+pdf2image
+pytesseract

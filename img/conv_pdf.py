@@ -1,14 +1,15 @@
+from pathlib import PurePath
 from pdf2image import convert_from_path
 import os,cv2,numpy as np
-#file_path = os.path.realpath(__file__)
+
 file_path=os.path.dirname(__file__)
-popplerpath=file_path+"\\poppler-0.68.0\\bin"
+popplerpath=os.path.join(file_path,"\\poppler-0.68.0\\bin")
 def savePdf2Img(path,when=0,to=float("inf")):
     images = convert_from_path(path,poppler_path=popplerpath)
     for i,img in enumerate(images):
         if i>=when and i<=to:
             img.save(str(i) +'.jpg', 'JPEG')
-def convert_pdf_to_image(path,first,last,dpi=200):
+def convert_pdf_to_image(path:str | PurePath,first:int,last:int,dpi=200):
     images = []
     images.extend(
                     list(

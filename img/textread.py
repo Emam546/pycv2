@@ -71,11 +71,6 @@ def get_text_mask(img):
 
 
 
-# from langdetect import detect_langs
-# #detect_langs(txt)
-# #[en:0.714282468983554, es:0.2857145605644145]
-
-
 
 
 

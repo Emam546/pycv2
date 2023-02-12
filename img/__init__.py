@@ -4,19 +4,18 @@ import imutils
 from pycv2.img.utils import *
 from pycv2.img.roate_img import *
 COLORS = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
-def get_contours(image):
+def get_contours(image:np.ndarray):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (7, 7), 0)
     edged = cv2.Canny(gray, 50, 100)
     edged = cv2.dilate(edged, None, iterations=1)
     edged = cv2.erode(edged, None, iterations=1)
-    cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(edged, cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     (cnts, _) = contours.sort_contours(cnts)
     return cnts 
-counter=0
 
-def get_contours_boxs(image,cnts,minarea=1000,draw=False):
+def get_contours_boxs(image:np.ndarray,cnts:tuple,minarea=1000,draw=False):
         c=None;i=None;bigarea=0
         for (i_small, c_small) in enumerate(cnts):
             if cv2.contourArea(c_small) > minarea and bigarea<cv2.contourArea(c_small):
@@ -36,7 +35,7 @@ def get_contours_boxs(image,cnts,minarea=1000,draw=False):
                 (int(rect[0][0] - 15), int(rect[0][1] - 15)),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
         return image,box
-def get_all_contours_boxs(image,cnts,minarea=1000,draw=False):
+def get_all_contours_boxs(image,cnts,minarea: int=1000,draw=False):
         boxs=[]
         for (i, c) in enumerate(cnts):
             if cv2.contourArea(c) < minarea:
@@ -55,7 +54,7 @@ def get_all_contours_boxs(image,cnts,minarea=1000,draw=False):
                     (int(rect[0][0] - 15), int(rect[0][1] - 15)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
         return image,boxs
-def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
+def transparentOverlay(src:np.ndarray, overlay:np.ndarray, pos=(0, 0), scale=1):
     overlay = cv2.resize(overlay, (0, 0), fx=scale, fy=scale)
     h, w, _ = overlay.shape  # Size of foreground
     rows, cols, _ = src.shape  # Size of background Image
@@ -69,7 +68,7 @@ def transparentOverlay(src, overlay, pos=(0, 0), scale=1):
             src[x + i][y + j] = alpha * overlay[i][j][:3] + (1 - alpha) * src[x + i][y + j]
     return src
 
-def cluster_img(img,k):
+def cluster_img(img:np.ndarray,k:int):
     criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
     flags = cv2.KMEANS_RANDOM_CENTERS
     Z = img.reshape((-1,3))

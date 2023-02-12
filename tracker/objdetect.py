@@ -1,4 +1,4 @@
-import cv2,time
+import cv2
 from pycv2.img.drawing import fancydraw
 
 class objectdetctor():

@@ -28,21 +28,3 @@ class Face_landmarks():
                         cv2.circle(img,(cx,cy),radius,color,cv2.FILLED)
         return lmlist
 
-def main():
-    cap=cv2.VideoCapture("video.mp4")
-    drawSPEC=mpdraw.DrawingSpec(thickness=1,circle_radius=1)
-    ptime=0
-    face=Face_landmarks(drawSpec=drawSPEC)
-    while True:
-        ctime=time.time()
-        fps=1/(ctime-ptime)
-        ptime=ctime
-        success,img=cap.read()
-        #face.findface(img)
-        face.findpositions(img,True)
-        cv2.putText(img,str(int(fps)),(50,100),cv2.FONT_HERSHEY_COMPLEX,3,(0,255,0))
-        cv2.imshow("show",img)
-        cv2.waitKey(1)
-       
-if __name__=="__main__":
-    main()

@@ -6,7 +6,7 @@ def rotate(image,angel):
     shape = ( image.shape[1], image.shape[0] ) # cv2.warpAffine expects shape in (length, height)
     matrix = cv2.getRotationMatrix2D( center=center, angle=(angel/np.pi), scale=1 )
     return cv2.warpAffine(image,matrix,shape)
-def rotate_all_image(image, angle,):
+def rotate_all_image(image, angle):
     # grab the dimensions of the image and then determine the
     # center
     (h, w) = image.shape[:2]

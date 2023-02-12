@@ -28,16 +28,4 @@ def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 70, f
         printProgressBar(i + 1)
     # Print New Line on Complete
     print()
-def __simpleuse():
-    import time
-
-    # A List of Items
-    items = list(range(0, 57))
-
-    # A Nicer, Single-Call Usage
-    for item in progressBar(items, prefix = 'Progress:', suffix = 'Complete', length = 50):
-        # Do stuff...
-        time.sleep(0.1)
-if __name__=="__main__":
-    __simpleuse()
     

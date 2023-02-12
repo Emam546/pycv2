@@ -1,10 +1,5 @@
 import cv2
 import time
-<<<<<<< HEAD
-=======
-import os 
-import sys
->>>>>>> c9ff1fe2f404d08b81086e389cfb6209c553a796
 from pathlib import Path
 
 from pycv2.tools.utils import *
@@ -144,6 +139,3 @@ class Fast_set_cam(cv2.VideoCapture):
             cv2.waitKey(token)
         cv2.destroyAllWindows()
         control.stop_checking_all()
-if __name__=="__main__":
-    #print(WIDTH,HEIGHT)
-    VIDEO_SAVER("http://192.168.0.104:8080/video").start()

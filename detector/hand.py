@@ -1,4 +1,4 @@
-import mediapipe as mp,cv2,math,numpy as np,time
+import mediapipe as mp,cv2,math
 from google.protobuf.json_format import MessageToDict
 mpDraw=mp.solutions.drawing_utils
 mp_hand=mp.solutions.hands
@@ -82,37 +82,3 @@ class Hand_detector(mp_hand.Hands):
             if drawtext:
                 cv2.putText(img,str(int(angel)),(x2-10,y2),font,fontscale,tcolor,textthickness)
         return angel
-def main():
-    from pycv2.img.utils import resize_img
-    from pycv2.tools.cam import FPS
-    from pykeyboard import keyboards
-    from pykeyboard.keys import ESC
-    control=keyboards()
-    cap=cv2.VideoCapture("http://192.168.0.104:8080/video")
-    hand_detector=Hand_detector()
-    fps=FPS()
-    while True:
-        fps.start()
-        ret,frame=cap.read()
-        if not ret or control.pressedkey(ESC):
-            break
-        hand_detector.find_hands(frame)
-        frame=hand_detector.draw_land_marks(frame)
-        fps.end(frame)
-        if frame is None:
-            break
-        cv2.imshow("WINDOW",frame)
-        cv2.waitKey(1)
-    control.stop_checking_all()
-    hand_types=hand_detector.hands_type()
-    for label,handnum in hand_types.items():
-        handLms = hand_detector.result.multi_hand_landmarks[handnum]
-        
-        print(MessageToDict(handLms.landmark[0]))
-    # get_img=len(hand_detector.result.multi_hand_landmarks[hand_type.values()[0]])
-        
-    
-    # print(type(hand_detector.result.multi_hand_landmarks))
-    # print(get_img)
-if __name__=="__main__":
-    main()

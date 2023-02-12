@@ -80,4 +80,3 @@ def cluster_img(img,k):
     res = center[label.flatten()]
     return res.reshape((img.shape))
 
-    

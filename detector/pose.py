@@ -1,7 +1,5 @@
 import cv2,mediapipe as mp,time,math
 
-from numpy.lib.function_base import angle
-
 mppose=mp.solutions.pose
 mpDraw=mp.solutions.drawing_utils
 class poseDetctor():
@@ -65,21 +63,4 @@ class poseDetctor():
         return lenght
         
 
-    
-def __example():
-    cap=cv2.VideoCapture("video3.mp4")
-    ptime=0
-    detector=poseDetctor(upperbody=True)
-    while True:
-        success,img=cap.read()
-        ctime=time.time()
-        fps=1/(ctime-ptime)
-        ptime=ctime
-        print(detector.get_results(img).pose_landmarks)
-
-        cv2.putText(img,str(int(fps)),(70,50),cv2.FONT_HERSHEY_COMPLEX,3,(0,255,0))
-        cv2.imshow("show",img)
-        cv2.waitKey(1)
-if __name__=="__main__":
-    __example()
     

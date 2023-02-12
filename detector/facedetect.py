@@ -18,26 +18,3 @@ class facedetection():
                     int(pos.width*w),int(pos.height*h)
                 bboxs.append([bbox,detection.score[0]])
         return bboxs
-
-def main():
-    cap=cv2.VideoCapture("video.mp4")
-    ptime=0
-    detector=facedetection()
-    while True:
-        success,img=cap.read()
-        try:
-            ctime=time.time()
-            fps=1/(ctime-ptime)
-            ptime=ctime
-            cv2.putText(img,str(int(fps)),(50,100),cv2.FONT_HERSHEY_COMPLEX,3,(0,255,0))
-        except:pass
-        img,bbox=detector.findfaces(img,False)
-        if len(bbox)!=0:
-            pos=bbox[0][0]
-            
-            detector.fancydraw(img,pos)
-        cv2.imshow("show",img)
-        cv2.waitKey(1)
-    
-if __name__=="__main__":
-    main()

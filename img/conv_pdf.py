@@ -3,7 +3,7 @@ import os,cv2,numpy as np
 #file_path = os.path.realpath(__file__)
 file_path=os.path.dirname(__file__)
 popplerpath=file_path+"\\poppler-0.68.0\\bin"
-def savePdf2Img(path,when=0,to=100000000):
+def savePdf2Img(path,when=0,to=float("inf")):
     images = convert_from_path(path,poppler_path=popplerpath)
     for i,img in enumerate(images):
         if i>=when and i<=to:

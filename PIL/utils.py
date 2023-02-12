@@ -6,11 +6,3 @@ def pil2cv(src):
 def cv2pil(src):
     img=cv2.cvtColor(src,cv2.COLOR_BGR2RGB)
     return Image.fromarray(img)
-
-
-
-def __example():
-    img=cv2.imread("messi5.jpg")
-    print(cv2pil(img))
-if __name__=="__main__":
-    __example()

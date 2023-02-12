@@ -49,26 +49,3 @@ def Draw(im, mode=None):
         return im.getdraw(mode)
     except AttributeError:
         return TextDrawer(im, mode)
-def __example():
-    from utils import cv2pil,pil2cv
-    import cv2 
-    from PIL import ImageFont
-    img=cv2.imread("G:\python\opencv\images\messi5.jpg")
-    imgPi=cv2pil(img)
-    #font=ImageFont.truetype("sans-serif.ttf",16)
-    #r,g,b
-    drawer=Draw(imgPi)
-    ImageFont.load_default()
-    #font=ImageFont.truetype(size=20)
-    text="Accessing individual pixels is fairly slow. If you are looping over all of the pixels in an image, there is likely a faster way using other parts of the Pillow API."
-    text=drawer.text2lines(text,200,break_=True)
-    drawer.multiline_text((0,0),text,(255,255,255))
-
-    cv2.imshow("image",pil2cv(imgPi))
-    cv2.waitKey(0)
-
-if __name__=="__main__":
-    import os,sys
-    
-    sys.path.append(os.path.dirname(__file__))
-    __example()

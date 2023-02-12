@@ -78,14 +78,6 @@ def get_text_mask(img):
 
 
 
-if __name__=="__main__":
-    img=cv2.imread("D:\Projects\small projects\images\Backegroundpng.png")
-    mask=get_text_mask(img)
-    cv2.imshow("image",mask)
-    cv2.waitKey(0)
-
-
-
 
 
 

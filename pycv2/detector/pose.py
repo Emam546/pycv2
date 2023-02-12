@@ -1,4 +1,4 @@
-import cv2,mediapipe as mp,time,math
+import cv2,mediapipe as mp,math
 
 mppose=mp.solutions.pose
 mpDraw=mp.solutions.drawing_utils

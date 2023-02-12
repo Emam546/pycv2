@@ -3,6 +3,9 @@ from imutils import contours
 import imutils
 from pycv2.img.utils import *
 from pycv2.img.roate_img import *
+from pycv2.img.conv_pdf import *
+
+
 COLORS = ((0, 0, 255), (240, 0, 159), (255, 0, 0), (255, 255, 0))
 def get_contours(image:np.ndarray):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)

@@ -1,0 +1,1 @@
+from pycv2.tracker.objdetect import objectdetctor

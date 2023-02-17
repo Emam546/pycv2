@@ -142,7 +142,7 @@ def closest_node_index(node, nodes,maxdistance=float("inf")):
 def closest_node(node, nodes,maxdistance=float("inf")):
     close=closest_node_index(node, nodes,maxdistance)
     if close!=None:
-        return close[1]
+        return nodes[close[0]]
 def all_closetest_nodes(node, nodes,maxdistance):
     points,pos=np.array(nodes),np.array(node)
     dist=np.sqrt(np.sum((points-pos)**2,axis=1))

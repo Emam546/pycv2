@@ -1,8 +1,9 @@
+import os
 from setuptools import setup, find_packages
-VERSION = '0.0.1.1'
+VERSION = '0.0.1.3'
 DESCRIPTION = 'Lightweight utility package for common computer vision tasks.'
 LONG_DESCRIPTION = 'A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3.'
-import os
+
 
 def package_files(directory):
     paths = []
@@ -11,6 +12,8 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     print(paths)
     return paths
+
+
 # Setting up
 setup(
     name="cv-imutils",
@@ -20,8 +23,15 @@ setup(
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    install_requires=["opencv-python", "numpy", "mediapipe",
-                      "Pillow", "scipy", "imutils", "pdf2image", "pytesseract"],
+    install_requires=[
+        "opencv-python",
+        "numpy",
+        "mediapipe",
+        "Pillow",
+        "scipy",
+        "imutils",
+        "pdf2image",
+        "pytesseract"],
     keywords=['python', 'cv2-utils', 'tools', 'pycv2',
               'cv2-functions', "cv2-most-used functions"],
     classifiers=[
@@ -32,6 +42,6 @@ setup(
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
     ],
-    package_data={'': package_files("./pycv2/img/poppler")},
+    package_data={'': package_files("./pycv2/img/poppler-0.68.0")},
     include_package_data=True,
 )

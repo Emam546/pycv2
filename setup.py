@@ -1,6 +1,6 @@
 import os
 from setuptools import setup, find_packages
-VERSION = '0.0.1.3'
+VERSION = '0.0.1.4'
 DESCRIPTION = 'Lightweight utility package for common computer vision tasks.'
 LONG_DESCRIPTION = 'A series of convenience functions to make basic image processing functions such as translation, rotation, resizing, skeletonization, displaying Matplotlib images, sorting contours, detecting edges, and much more easier with OpenCV and both Python 2.7 and Python 3.'
 
@@ -18,7 +18,7 @@ def package_files(directory):
 setup(
     name="cv-imutils",
     version=VERSION,
-    author="Emam_ahsour",
+    author="Imam_ashur",
     author_email="emam54637@gmail.com",
     description=DESCRIPTION,
     long_description=LONG_DESCRIPTION,

@@ -251,11 +251,11 @@ def pyramids(img,num:int):
 
 def color_back_ground(src,mask,color:tuple):
     coloredbackground=src.copy()
-    coloredbackground[mask.astype(np.bool)]=color
+    coloredbackground[mask.astype(bool)]=color
     return coloredbackground
 def add_back_ground(src,mask:np.ndarray,another_img:np.ndarray):
     src=src.copy()
-    mask=mask.astype(np.bool)
+    mask=mask.astype(bool)
     src[mask]=another_img[mask]
     return src
 def bluring(src,mask,radius=7):
